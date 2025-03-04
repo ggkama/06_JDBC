@@ -22,7 +22,7 @@ public class JDBCExample6 {
 		
 		/* DB 연결을 위한 url, userName, password */
 		String url = "jdbc:oracle:thin:@112.221.156.34:12345:XE";
-		String userName = "KH08_KTY"; 
+		String userName = "KH08_KTY";
 		String password = "KH1234"; 
 		
 		/* JDBC Driver를 메모리에 load */
