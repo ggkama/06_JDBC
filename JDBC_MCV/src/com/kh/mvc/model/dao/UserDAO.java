@@ -1,5 +1,10 @@
 package com.kh.mvc.model.dao;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,11 +73,29 @@ public class UserDAO {
 	 * 						  DML : 처리된 행의 개수
 	 */
 	
-	public List<UserDTO> findAll() {
+	private final String URL = "jdbc:oracle:thin:@112.221.156.34:12345:XE";
+	private final String USERNAME = "KH08_KTY";
+	private final String PASSWORD = "KH1234";
+	
+	
+	
+	static {
+		
+		 try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+		} catch (ClassNotFoundException e) {
+			System.out.println("ojdbc");
+			
+		}
+
+	} // static 블럭 == 맨 첫번째로 한번만 실행
+	
+	public List<UserDTO> findAll(Connection conn) {
 		
 		// DB로 이동
 		/* 
-		 * VO / DTO / Entity
+		 * VO / DTO / Entity  -- 테이블에있는 한 행의 데이터를 담기위해서 사용
+		 * 
 		 * 테이블에 있는 한 행의 데이터를 담는 것
 		 * 
 		 * 1명의 회원정보는 1개의 UserDTO객체를 필드에 값을 담아야함.
@@ -80,23 +103,131 @@ public class UserDAO {
 		 * 문제점 : userDTO가 몇개가 나올지 알 수 없음
 		 */
 		
+		// 추상적 자료형 List -> 순서를 가지고 일렬로 나열한 원소의 모임
+		// 수학적으로 정의한 것.
 		
 		List<UserDTO> list = new ArrayList();
 		String sql = """
-				SELECT 
-					USER_NO, 
+				SELECT  
+					USER_NO,  
 					USER_ID, 
 					USER_PW, 
-					USER_NAME,
-					ENROLL_DATE
+					USER_NAME, 
+					ENROLL_DATE 
 				FROM 
-					TB_USER
-				ORDER BY
-				ENROLL_DATE DESC
+					TB_USER 
+				ORDER BY 
+				ENROLL_DATE DESC 
 				""";
+		
+		// Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rset = null;
+		
+		
+		try {
+//			conn= DriverManager.getConnection(
+//					"jdbc:oracle:thin:@112.221.156.34:12345:XE",
+//					"KH08_KTY","KH1234");
+			
+			stmt = conn.prepareStatement(sql);
+			rset = stmt.executeQuery();
+			while(rset.next()) { // if사용시 얼마나 많은 데이터를 가져올지 모르기 때문에
+				UserDTO user = new UserDTO();
+				
+				user.setUserNo(rset.getInt("USER_NO"));
+				user.setUserId(rset.getString("USER_ID"));
+				user.setUserPw(rset.getString("USER_PW"));
+				user.setUserName(rset.getString("USER_NAME"));
+				user.setEnrollDate(rset.getDate("ENROLL_DATE"));
+				
+				list.add(user);
+			}
+			
+			
+		} catch (SQLException e) {
+			System.out.println("오타확인");
+		} finally {
+			
+			try {
+				if(rset != null) {
+					rset.close();
+				}
+			} catch (SQLException e) {
+				System.out.println("ResultSet 오류");
+				
+			} // 여기다가 작성
+			try {
+				if(conn != null) {
+					conn.close();
+				}
+			} catch(SQLException e) {
+				System.out.println("Connection 오류");
+			}
+			
+		}
+		// finally 안에 종료 구문 넣는 이유
+		// -> 유지보수에 도움
 		
 		return list;
 		
 	}
+
+	/**
+	 * @param user 사용자가 입력한 아이디 / 비밀번호 / 이름이 각각 필드에 대입되어있음
+	 * @return 
+	 * @return 아직 어떤것을 돌려줄지 정하지 않음
+	 */
+	public int insertUser(UserDTO user) {
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		String sql = """
+				INSERT INTO 
+					TB_USER 
+				VALUES 
+				(SEQ_USER_NO.NEXTVAL, 
+				 ?, 
+				 ?, 
+				 ?, 
+				 SYSDATE) 
+				""";
 	
+		int result = 0;
+		try {
+			
+		conn = DriverManager.getConnection(
+				"jdbc:oracle:thin:@112.221.156.34:12345:XE",
+					"KH08_KTY","KH1234");
+
+		
+		//		오토커밋 x
+		//		conn.setAutoCommit(false);
+		
+		pstmt = conn.prepareStatement(sql);
+		
+		pstmt.setString(1, user.getUserId());
+		pstmt.setString(2, user.getUserPw());
+		pstmt.setString(3, user.getUserName());
+		
+		result = pstmt.executeUpdate()	;
+		
+		
+		} catch(SQLException e) {
+			e.printStackTrace();
+			} finally {
+			 try{
+					if(pstmt != null) pstmt.close();
+			}catch(SQLException e) {
+					e.printStackTrace();
+			}try {
+					if(conn != null) conn.close();
+			}catch(SQLException e){
+					e.printStackTrace();
+			}
+	}
+	 return result;
+	
+	}
 }

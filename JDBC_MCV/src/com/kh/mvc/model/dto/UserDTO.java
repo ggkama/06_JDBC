@@ -14,13 +14,10 @@ public class UserDTO { // 필드 5개 필요 (컬럼 5개를 가져오기때문�
 	
 	
 	
-	public UserDTO(int userNo, String userId, String userPw, String userName, Date enrollDate) {
+
+	public UserDTO() {
 		super();
-		this.userNo = userNo;
-		this.userId = userId;
-		this.userPw = userPw;
-		this.userName = userName;
-		this.enrollDate = enrollDate;
+
 	}
 	public int getUserNo() {
 		return userNo;
