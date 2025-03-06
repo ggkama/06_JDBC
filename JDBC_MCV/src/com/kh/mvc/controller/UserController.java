@@ -31,6 +31,17 @@ public class UserController {
 		return result;
 		
 	}
+	public int deleteUser(String userName, String userId, String userPw) {
+		UserDTO user = new UserDTO();
+		user.setUserName(userName);
+		user.setUserId(userId);
+		user.setUserPw(userPw);
+		
+		int result = userDao.delectUser(user);
+		user=null;
+		return result;
+		
+	}
 		
 		
 	}

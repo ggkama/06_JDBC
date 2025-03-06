@@ -121,7 +121,7 @@ public class UserDAO {
 				""";
 		
 		// Connection conn = null;
-		PreparedStatement stmt = null;
+		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		
 		
@@ -130,8 +130,8 @@ public class UserDAO {
 //					"jdbc:oracle:thin:@112.221.156.34:12345:XE",
 //					"KH08_KTY","KH1234");
 			
-			stmt = conn.prepareStatement(sql);
-			rset = stmt.executeQuery();
+			pstmt = conn.prepareStatement(sql);
+			rset = pstmt.executeQuery();
 			while(rset.next()) { // if사용시 얼마나 많은 데이터를 가져올지 모르기 때문에
 				UserDTO user = new UserDTO();
 				
@@ -230,4 +230,53 @@ public class UserDAO {
 	 return result;
 	
 	}
+	
+	public int delectUser(UserDTO user) {
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		String sql = """
+				DELETE 
+				FROM TB_USER
+				WHERE USER_NAME = '?' 
+				AND USER_ID = '?' 
+				AND USER_PW = '?' 
+				""";
+		
+		int result = 0;
+		
+		try {
+			conn = DriverManager.getConnection(
+					"jdbc:oracle:thin:@112.221.156.34:12345:XE",
+						"KH08_KTY","KH1234");
+
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, user.getUserName());
+			pstmt.setString(2, user.getUserId());
+			pstmt.setString(3, user.getUserPw());
+			
+			
+			result = pstmt.executeUpdate();
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			try{
+				if(pstmt != null) pstmt.close();
+		}catch(SQLException e) {
+				e.printStackTrace();
+		}try {
+				if(conn != null) conn.close();
+		}catch(SQLException e){
+				e.printStackTrace();
+		}
+		
+	}
+		
+		return result;
+}
+	
 }

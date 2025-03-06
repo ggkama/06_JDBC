@@ -43,6 +43,7 @@ public class UserView {
 		System.out.println("--- USER테이블 관리 프로그램 ---");
 		System.out.println("1.회원 전체 조회");
 		System.out.println("2.회원 추가");
+		System.out.println("3.회원 삭제");
 		System.out.println("9.프로그램 종료");
 		System.out.print("이용할 메뉴 선택 > ");
 		
@@ -64,6 +65,9 @@ public class UserView {
 				break;
 		case 2 : 
 			insertUser();
+				break;
+		case 3 : 
+			deleteUser();
 				break;
 		case 9 : System.out.println("프로그램 종료"); return;
 		default : System.out.println("잘못된 메뉴 선택입니다.");
@@ -132,6 +136,32 @@ public class UserView {
 		}
 	}
 	
+	private void deleteUser(){
+		System.out.println("=== 유저 삭제 페이지입니다. ===");
+		
+		System.out.println("삭제할 회원의 이름를 입력하세요 > ");
+		String userName = sc.nextLine();
+		
+		System.out.println("삭제할 회원의 아이디를 입력하세요 > ");
+		String userId = sc.nextLine();
+		
+		System.out.println("비밀번호를 입력하세요 > ");
+		String userPw = sc.nextLine();
+		
+		int result = userController.deleteUser(userName, userId, userPw);
+		
+		if(result > 0) {		
+				System.out.println(userName + "님의 정보가 삭제되었습니다");
+			}else {
+				System.out.println("회원 삭제 실패, 다시 시도");
+			}
+		}
 	
 	
-}
+	
+	
+	
+	}
+	
+	
+
